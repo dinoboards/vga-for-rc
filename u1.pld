@@ -48,10 +48,16 @@ PIN 13 = BA6;
 PIN 14 = BA7;
 PIN 16 = BA8;
 PIN 17 = BA9;
+PIN 37 = BUS_ENABLED_n;
+PIN 39 = IORQ_n;
+PIN 40 = RD_n;
 
+BUS_ENABLED = !BUS_ENABLED_n;
+IORQ = !IORQ_n;
+RD = !RD_n;
 
 /** outputs **/
-PIN 37 = HBLANK;
+PIN 31 = HBLANK;
 PIN 18 = RA0;
 PIN 19 = RA1;
 PIN 20 = RA2;
@@ -62,6 +68,15 @@ PIN 26 = RA6;
 PIN 27 = RA7;
 PIN 28 = RA8;
 PIN 29 = RA9;
+PIN 34 = IOSEL;
+
+/*
+Bus Multiplexing
+----------------
+When BUS_ENABLED is active, then direct the Bus Address lines
+to the RAM's address lines.  Otherwise, direct the hcounter
+signals to the RAM's address lines
+*/
 
 node P0;
 node P1;
@@ -74,58 +89,51 @@ node P7;
 node P8;
 node P9;
 
-H1 = P0;
-H2 = P1;
-H4 = P2;
-H8 = P3;
-H16 = P4;
-H32 = P5;
-H64 = P6;
-H128 = P7;
-H256 = P8;
-H512 = P9;
+FUNCTION MUX_BUS(BA, P) {
+  MUX_BUS = (BUS_ENABLED & BA) # (!BUS_ENABLED & P);
+}
+RA0 = MUX_BUS(BA0, P0);
+RA1 = MUX_BUS(BA1, P1);
+RA2 = MUX_BUS(BA2, P2);
+RA3 = MUX_BUS(BA3, P3);
+RA4 = MUX_BUS(BA4, P4);
+RA5 = MUX_BUS(BA5, P5);
+RA6 = MUX_BUS(BA6, P6);
+RA7 = MUX_BUS(BA7, P7);
+RA8 = MUX_BUS(BA8, P8);
+RA9 = MUX_BUS(BA9, P9);
 
-RA0 = BA0;
-RA1 = BA1;
-RA2 = BA2;
-RA3 = BA3;
-RA4 = BA4;
-RA5 = BA5;
-RA6 = BA6;
-RA7 = BA7;
-RA8 = BA8;
-RA9 = BA9;
+/*
+Horizontal counter
+------------------
+Generate a horizontal counter and the associated
+blanking and sync signals
+*/
 
-/** variables **/
-FIELD COUNTER = [P9..P0];
+FIELD HCOUNTER = [P9..P0];
+HCOUNTER.CK = CLOCK;
 
-/** equations **/
-COUNTER.CK = CLOCK;
-/* COUNTER.AR = RESET; */
-
-SEQUENCE COUNTER {
+SEQUENCE HCOUNTER {
   $REPEAT i = [0..799]
   PRESENT {i} NEXT {(i+1)};
   $REPEND
   PRESENT 800 next 1;
 }
 
-HBLANK.D = !COUNTER:['d'640..'d'800];
+HBLANK.D = !HCOUNTER:['d'640..'d'800];
 HBLANK.CK = CLOCK;
 
-NODE U5B;
+HSYNC.D = !HCOUNTER:['d'656..'d'751];
+HSYNC.CK = CLOCK;
 
-U5B.D = !(H128 & H512);
-U5B.CK = CLOCK;
 
-NODE U6A;
-U6A.D = H16;
-U6A.CK = CLOCK;
+/*
+I/O ADDRESSING
 
-NODE U6B;
-U6B.D = COUNTER:['D'112];
-U6B.CK = CLOCK;
+*/
 
-NODE U7B;
-U7B.D = U5B;
-U7B.CK = U6A;
+FIELD ADDRESS = [BA0..BA7];
+
+$DEFINE VGA_IO_PORT  'h'45
+
+IOSEL = ADDRESS:[VGA_IO_PORT] & IORQ & RD;
