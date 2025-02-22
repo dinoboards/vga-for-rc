@@ -1,0 +1,194 @@
+Name     U1 ;
+PartNo   ATF1502 ;
+Date     01/28/24 ;
+Revision 01 ;
+Designer Dean ;
+Company  Dinoboards ;
+Assembly None ;
+Location Here ;
+Device   F1502PLCC44 ;
+
+/*
+| Device Name Package      | Type    | JTAG Enabled    | JTAG Disabled |
+| --------------------     | -----   | ----            | ----          |
+| ATF1502AS/ASL/ASV        | PLCC44  | F1502ISPPLCC44  | F1502PLCC44   |
+| ATF1502AS/ASL/ASV        | TQFP44  | F1502ISPTQFP44  | F1502TQFP44   |
+| ATF1504AS/ASL/ASV/ASVL   | PLCC44  | F1504ISPPLCC44  | F1504PLCC44   |
+| ATF1504AS/ASL/ASV/ASVL   | TQFP44  | F1504ISPTQFP44  | F1504TQFP44   |
+| ATF1504AS/ASL/ASV/ASVL   | PLCC84  | F1504ISPPLCC84  | F1504PLCC84   |
+| ATF1504AS/ASL/ASV/ASVL   | TQFP100 | F1504ISPTQFP100 | F1504TQFP100  |
+| ATF1508AS/ASL/ASV/ASVL   | PLCC84  | F1508ISPPLCC84  | F1508PLCC84   |
+| ATF1508AS/ASL/ASV/ASVL   | TQFP100 | F1508ISPTQFP100 | F1508TQFP100  |
+| ATF1508AS/ASL/ASV/ASVL   | PQFP100 | F1508ISPQFP100  | F1508QFP100   |
+*/
+
+property   atmel {cascade_logic  off  };
+property   atmel {fast_inlatch   on   };
+property   atmel {foldback_logic on   };
+property   atmel {logic_doubling on   };
+property   atmel {optimize       on   };
+property   atmel {output_fast    on   };
+property   atmel {pin_keep       off  };
+property   atmel {preassign      keep };
+property   atmel {security       off  };
+property   atmel {xor_synthesis  on   };
+property   atmel {jtag           off  };
+
+/** INPUTS **/
+PIN 43 = CLOCK;
+PIN 1 = VSYNC;
+PIN 2 = VBLANK;
+PIN 4 = HBLANK;
+PIN 36 = MREQ_n;
+PIN 37 = RD_n;
+PIN 38 = WR_n;
+PIN 41 = MEMSEL;
+PIN 44 = IOSEL;
+
+MREQ = !MREQ_n;
+WR = !WR_n;
+RD = !RD_n;
+
+/* INOUTS */
+PIN 13 = BD0;
+PIN 14 = BD1;
+PIN 16 = BD2;
+PIN 17 = BD3;
+PIN 18 = BD4;
+PIN 19 = BD5;
+PIN 20 = BD6;
+PIN 21 = BD7;
+
+PIN 24 = RD0;
+PIN 26 = RD1;
+PIN 27 = RD2;
+PIN 28 = RD3;
+PIN 29 = RD4;
+PIN 31 = RD5;
+PIN 32 = RD6;
+PIN 33 = RD7;
+
+/* OUTPUTS */
+PIN 5 = VD0;
+PIN 6 = VD1;
+PIN 7 = VD2;
+PIN 8 = VD3;
+PIN 9 = VD4;
+PIN 11 = VD5;
+PIN 12 = VD6;
+PIN 25 = VD7;
+PIN 34 = INT_n;
+PIN 39 = RAM_WE_n;
+PIN 40 = BUS_ENABLED;
+
+
+VMREQ = MREQ & MEMSEL; /* A CPU MEMORY READ OR WRITE TO VRAM IS ACTIVE */
+VIOREQ = IOSEL & RD; /* AN CPU IO PORT READ IS ACTIVE */
+VMREQ_RD = VMREQ & RD;
+VMREQ_WR = VMREQ & WR;
+
+BUS_ENABLED = VMREQ;
+
+/* VSYNC INTERRUPT SIGNALLING */
+
+/* when VSYNC goes low, INT needs to go low and have its output enabled */
+/* when IOSEL goes low, INT needs to go high, and have its output disabled */
+
+NODE VSYNC_P;
+VSYNC_P.D = VSYNC;
+VSYNC_P.CK = CLOCK;
+VSYNC_NEG_EDGE = VSYNC_P & !VSYNC;
+
+NODE IOSEL_P;
+IOSEL_P.D = IOSEL;
+IOSEL_P.CK = CLOCK;
+IOSEL_POS_EDGE = !IOSEL_P & IOSEL;
+
+INT_ACTIVATE = VSYNC_NEG_EDGE # !INT_n.D;
+INT_DEACTIVATE = (IOSEL_POS_EDGE & !INT_n.D);
+INT_n.D = !(INT_ACTIVATE & !INT_DEACTIVATE);
+INT_n.OE = !INT_n.D;
+INT_n.CK = CLOCK;
+
+/* DATA BUS DIRECTIONING */
+
+BD_OUTPUT_EN = VIOREQ # VMREQ_RD;
+BD0.D = (VIOREQ & INT_n) # (VMREQ_RD & VD0);
+BD0.OE = BD_OUTPUT_EN;
+BD0.CK = CLOCK;
+
+BD1.D = (VIOREQ & !INT_n) # (VMREQ_RD & VD1);
+BD1.OE = BD_OUTPUT_EN;
+BD1.CK = CLOCK;
+
+BD2.D = (VMREQ_RD & VD2);
+BD2.OE = BD_OUTPUT_EN;
+BD2.CK = CLOCK;
+
+BD3.D = (VMREQ_RD & VD3);
+BD3.OE = BD_OUTPUT_EN;
+BD3.CK = CLOCK;
+
+BD4.D = (VMREQ_RD & VD4);
+BD4.OE = BD_OUTPUT_EN;
+BD4.CK = CLOCK;
+
+BD5.D = (VMREQ_RD & VD5);
+BD5.OE = BD_OUTPUT_EN;
+BD5.CK = CLOCK;
+
+BD6.D = (VMREQ_RD & VD6);
+BD6.OE = BD_OUTPUT_EN;
+BD6.CK = CLOCK;
+
+BD7.D = (VMREQ_RD & VD7);
+BD7.OE = BD_OUTPUT_EN;
+BD7.CK = CLOCK;
+
+/* VRAM BUS MULTIPLEXING */
+RAM_WE_n = !VMREQ_WR;
+
+RD0 = BD0;
+RD0.OE = VMREQ_WR;
+
+RD1 = BD1;
+RD1.OE = VMREQ_WR;
+
+RD2 = BD2;
+RD2.OE = VMREQ_WR;
+
+RD3 = BD3;
+RD3.OE = VMREQ_WR;
+
+RD4 = BD4;
+RD4.OE = VMREQ_WR;
+
+RD5 = BD5;
+RD5.OE = VMREQ_WR;
+
+RD6 = BD6;
+RD6.OE = VMREQ_WR;
+
+RD7 = BD7;
+RD7.OE = VMREQ_WR;
+
+/* VIDEO RGB VALUE OUTPUTS */
+
+VD0.D = (HBLANK & VBLANK) & ((RD0) # (VMREQ & VD0));
+VD0.CK = CLOCK;
+VD1.D = (HBLANK & VBLANK) & ((RD1) # (VMREQ & VD1));
+VD1.CK = CLOCK;
+VD2.D = (HBLANK & VBLANK) & ((RD2) # (VMREQ & VD2));
+VD2.CK = CLOCK;
+VD3.D = (HBLANK & VBLANK) & ((RD3) # (VMREQ & VD3));
+VD3.CK = CLOCK;
+VD4.D = (HBLANK & VBLANK) & ((RD4) # (VMREQ & VD4));
+VD4.CK = CLOCK;
+VD5.D = (HBLANK & VBLANK) & ((RD5) # (VMREQ & VD5));
+VD5.CK = CLOCK;
+VD6.D = (HBLANK & VBLANK) & ((RD6) # (VMREQ & VD6));
+VD6.CK = CLOCK;
+VD7.D = (HBLANK & VBLANK) & ((RD7) # (VMREQ & VD7));
+VD7.CK = CLOCK;
+
+

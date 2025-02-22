@@ -22,19 +22,18 @@ Device   F1502PLCC44 ;
 | ATF1508AS/ASL/ASV/ASVL   | PQFP100 | F1508ISPQFP100  | F1508QFP100   |
 */
 
-property   atmel {cascade_logic  off   };
+property   atmel {cascade_logic  off  };
 property   atmel {fast_inlatch   on   };
 property   atmel {foldback_logic on   };
 property   atmel {logic_doubling on   };
 property   atmel {optimize       on   };
-property   atmel {output_fast    ON   };
-property   atmel {pin_keep       off   };
-property   atmel {preassign      keep   };
-property   atmel {security       off   };
-property   atmel {xor_synthesis  ON   };
-property   atmel {jtag  off   };
+property   atmel {output_fast    on   };
+property   atmel {pin_keep       off  };
+property   atmel {preassign      keep };
+property   atmel {security       off  };
+property   atmel {xor_synthesis  on   };
+property   atmel {jtag           off  };
 
-PROPERTY ATMEL {TDI_PULLUP = ON};
 
 /** inputs **/
 PIN 43 = CLOCK;
@@ -48,11 +47,10 @@ PIN 13 = BA6;
 PIN 14 = BA7;
 PIN 16 = BA8;
 PIN 17 = BA9;
-PIN 37 = BUS_ENABLED_n;
+PIN 37 = BUS_ENABLED;
 PIN 39 = IORQ_n;
 PIN 40 = RD_n;
 
-BUS_ENABLED = !BUS_ENABLED_n;
 IORQ = !IORQ_n;
 RD = !RD_n;
 
