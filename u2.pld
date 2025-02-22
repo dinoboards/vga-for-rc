@@ -39,58 +39,65 @@ property   atmel {jtag           off  };
 PIN 43 = HSYNC;
 
 PIN 4 = CS0_n;
-PIN 5 = RD_n;
-PIN 6 = WR_n;
+PIN 6 = RD_n;
+PIN 5 = WR_n;
 
 PIN 7 = BA10;
 PIN 8 = BA11;
 PIN 9 = BA12;
 PIN 11 = BA13;
-PIN 13 = BA14;
-PIN 16 = BA15;
-PIN 18 = BA16;
-PIN 20 = BA17;
-PIN 21 = BA18;
+PIN 12 = BA14;
+PIN 13 = BA15;
+PIN 14 = BA16;
+PIN 16 = BA17;
+PIN 18 = BA18;
+PIN 20 = BA19;
+PIN 21 = BA20;
+PIN 24 = BA21;
+PIN 25 = BA22;
+PIN 26 = BA23;
 
 CS0 = !CS0_n;
 WR = !WR_n;
 RD = !RD_n;
 
 /** outputs **/
-PIN 24 = RA10;
-PIN 25 = RA11;
-PIN 26 = RA12;
-PIN 27 = RA13;
-PIN 28 = RA14;
-PIN 29 = RA15;
-PIN 31 = RA16;
-PIN 32 = RA17;
-PIN 33 = RA18;
-/* PIN 37 = BUS_ENABLED; */
+PIN 27 = RA10;
+PIN 28 = RA11;
+PIN 29 = RA12;
+PIN 31 = RA13;
+PIN 32 = RA14;
+PIN 33 = RA15;
+PIN 34 = RA16;
+PIN 36 = RA17;
+PIN 37 = RA18;
 
-PIN 34 = VMREQ_RD_n;
-PIN 36 = VMREQ_WR_n;
-PIN 38 = VSYNC;
-PIN 39 = VBLANK;
+PIN 38 = VBLANK;
+PIN 39 = VSYNC;
+PIN 40 = VMREQ_WR_n;
+PIN 41 = VMREQ_RD_n;
 
-VMREQ_RD_n = !(CS0 & RD);
-VMREQ_WR_n = !(CS0 & WR);
+//F8 0000 TO FF FFFF
+VRAM_RANGE = BA23 & BA22 & BA21 & BA20 & BA19;
+
+VMREQ_RD_n = !(CS0 & RD & VRAM_RANGE);
+VMREQ_WR_n = !(CS0 & WR & VRAM_RANGE);
 
 VMREQ_RD = !VMREQ_RD_n;
 VMREQ_WR = !VMREQ_WR_n;
 
 BUS_ENABLED = VMREQ_RD # VMREQ_WR;
 
-node P0;
-node P1;
-node P2;
-node P3;
-node P4;
-node P5;
-node P6;
-node P7;
-node P8;
-node P9;
+PINnode 604 =  P0;
+PINnode 601 =  P1;
+PINnode 610 =  P2;
+PINnode 602 =  P3;
+PINnode 612 =  P4;
+PINnode 603 =  P5;
+PINnode 606 =  P6;
+PINnode 605 =  P7;
+PINnode 608 =  P8;
+PINnode 614 =  P9;
 
 FUNCTION MUX_BUS(BA, P) {
   MUX_BUS = (BUS_ENABLED & BA) # (!BUS_ENABLED & P);

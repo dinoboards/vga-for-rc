@@ -52,6 +52,7 @@ PIN 37 = RD_n;
 PIN 38 = IORQ_n;
 PIN 39 = VMREQ_WR_n;
 PIN 40 = VMREQ_RD_n;
+PIN 41 = HSYNC;
 
 IORQ = !IORQ_n;
 RD = !RD_n;
