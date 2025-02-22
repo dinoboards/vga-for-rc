@@ -22,7 +22,7 @@ Device   F1502PLCC44 ;
 | ATF1508AS/ASL/ASV/ASVL   | PQFP100 | F1508ISPQFP100  | F1508QFP100   |
 */
 
-property   atmel {cascade_logic  off  };
+property   atmel {cascade_logic  on  };
 property   atmel {fast_inlatch   on   };
 property   atmel {foldback_logic on   };
 property   atmel {logic_doubling on   };
@@ -39,15 +39,11 @@ PIN 43 = CLOCK;
 PIN 1 = VSYNC;
 PIN 2 = VBLANK;
 PIN 4 = HBLANK;
-PIN 36 = MREQ_n;
-PIN 37 = RD_n;
-PIN 38 = WR_n;
+PIN 36 = VMREQ_RD_n;
+PIN 37 = VMREQ_WR_n;
 PIN 41 = MEMSEL;
-PIN 44 = IOSEL;
+PIN 44 = VIOREQ;
 
-MREQ = !MREQ_n;
-WR = !WR_n;
-RD = !RD_n;
 
 /* INOUTS */
 PIN 13 = BD0;
@@ -78,34 +74,28 @@ PIN 11 = VD5;
 PIN 12 = VD6;
 PIN 25 = VD7;
 PIN 34 = INT_n;
-PIN 39 = RAM_WE_n;
-PIN 40 = BUS_ENABLED;
 
-
-VMREQ = MREQ & MEMSEL; /* A CPU MEMORY READ OR WRITE TO VRAM IS ACTIVE */
-VIOREQ = IOSEL & RD; /* AN CPU IO PORT READ IS ACTIVE */
-VMREQ_RD = VMREQ & RD;
-VMREQ_WR = VMREQ & WR;
-
-BUS_ENABLED = VMREQ;
+VMREQ_RD = !VMREQ_RD_n;
+VMREQ_WR = !VMREQ_WR_n;
+VMREQ = VMREQ_RD # VMREQ_WR;
 
 /* VSYNC INTERRUPT SIGNALLING */
 
 /* when VSYNC goes low, INT needs to go low and have its output enabled */
-/* when IOSEL goes low, INT needs to go high, and have its output disabled */
+/* when VIOREQ goes low, INT needs to go high, and have its output disabled */
 
 NODE VSYNC_P;
 VSYNC_P.D = VSYNC;
 VSYNC_P.CK = CLOCK;
 VSYNC_NEG_EDGE = VSYNC_P & !VSYNC;
 
-NODE IOSEL_P;
-IOSEL_P.D = IOSEL;
-IOSEL_P.CK = CLOCK;
-IOSEL_POS_EDGE = !IOSEL_P & IOSEL;
+NODE VIOREQ_P;
+VIOREQ_P.D = VIOREQ;
+VIOREQ_P.CK = CLOCK;
+VIOREQ_POS_EDGE = !VIOREQ_P & VIOREQ;
 
 INT_ACTIVATE = VSYNC_NEG_EDGE # !INT_n.D;
-INT_DEACTIVATE = (IOSEL_POS_EDGE & !INT_n.D);
+INT_DEACTIVATE = (VIOREQ_POS_EDGE & !INT_n.D);
 INT_n.D = !(INT_ACTIVATE & !INT_DEACTIVATE);
 INT_n.OE = !INT_n.D;
 INT_n.CK = CLOCK;
@@ -146,7 +136,7 @@ BD7.OE = BD_OUTPUT_EN;
 BD7.CK = CLOCK;
 
 /* VRAM BUS MULTIPLEXING */
-RAM_WE_n = !VMREQ_WR;
+/*RAM_WE_n = VMREQ_WR_n;*/
 
 RD0 = BD0;
 RD0.OE = VMREQ_WR;
