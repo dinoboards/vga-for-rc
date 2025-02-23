@@ -22,7 +22,7 @@ Device   F1502PLCC44 ;
 | ATF1508AS/ASL/ASV/ASVL   | PQFP100 | F1508ISPQFP100  | F1508QFP100   |
 */
 
-property   atmel {cascade_logic  on  };
+property   atmel {cascade_logic  on   };
 property   atmel {fast_inlatch   on   };
 property   atmel {foldback_logic on   };
 property   atmel {logic_doubling on   };
@@ -39,11 +39,13 @@ PIN 43 = CLOCK;
 PIN 1 = VSYNC;
 PIN 2 = VBLANK;
 PIN 4 = HBLANK;
-PIN 36 = VMREQ_RD_n;
-PIN 37 = VMREQ_WR_n;
-PIN 41 = MEMSEL;
+PIN 36 = VMREQ_n;
+PIN 37 = WR_n;
 PIN 44 = VIOREQ;
+PIN 41 = RD_n;
 
+RD = !RD_n;
+WR = !WR_n;
 
 /* INOUTS */
 PIN 14 = BD0;
@@ -74,10 +76,17 @@ PIN 11 = VD5;
 PIN 12 = VD6;
 PIN 13 = VD7;
 PIN 34 = INT_n;
+PIN 40 = LOW_RES;
 
-VMREQ_RD = !VMREQ_RD_n;
-VMREQ_WR = !VMREQ_WR_n;
+VMREQ_RD = !VMREQ_n & RD;
+VMREQ_WR = !VMREQ_n & WR;
 VMREQ = VMREQ_RD # VMREQ_WR;
+
+VIOREQ_RD = VIOREQ & RD;
+VIOREQ_WR = VIOREQ & WR;
+
+LOW_RES.D = BD7;
+LOW_RES.CK = VIOREQ_WR;
 
 /* VSYNC INTERRUPT SIGNALLING */
 
@@ -98,10 +107,10 @@ NODE S2;
 S0.D = (S0 # VSYNC_NEG_EDGE) & !S1 & !S2;
 S0.CK = CLOCK;
 /* STATE 1: TRANSITION TO S1 WHEN CPU IS NOT DOING I/O READ */
-S1.D = S0 & !VIOREQ;
+S1.D = S0 & !VIOREQ_RD;
 S1.CK = CLOCK;
 /* STATE 2: TRANSITION TO S2 WHEN CPU IS DOING I/O READ */
-S2.D = S1 & VIOREQ;
+S2.D = S1 & VIOREQ_RD;
 S2.CK = CLOCK;
 /* STATE 3: CPU HAS COMPLETED READ, INT IS CLEARED, S0..2 ARE ALL NOW FALSE */
 
@@ -112,8 +121,8 @@ INT_n.OE = !INT_n;
 
 /* DATA BUS DIRECTIONING */
 
-BD_OUTPUT_EN = VIOREQ # VMREQ_RD;
-BD0 = (VIOREQ & INT_n) # (VMREQ_RD & RD0);
+BD_OUTPUT_EN = VIOREQ_RD # VMREQ_RD;
+BD0 = (VIOREQ_RD & INT_n) # (VMREQ_RD & RD0);
 BD0.OE = BD_OUTPUT_EN;
 
 BD1 = (VMREQ_RD & RD1);
@@ -134,7 +143,7 @@ BD5.OE = BD_OUTPUT_EN;
 BD6 = (VMREQ_RD & RD6);
 BD6.OE = BD_OUTPUT_EN;
 
-BD7 = (VMREQ_RD & RD7);
+BD7 = (VMREQ_RD & RD7) # (VMREQ_RD & LOW_RES);
 BD7.OE = BD_OUTPUT_EN;
 
 /* VRAM BUS MULTIPLEXING */

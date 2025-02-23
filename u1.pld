@@ -47,19 +47,16 @@ PIN 11 = BA6;
 PIN 13 = BA7;
 PIN 16 = BA8;
 PIN 18 = BA9;
-
-PIN 37 = RD_n;
+PIN 36 = LOW_RES;
 PIN 38 = IORQ_n;
 PIN 39 = VMREQ_WR_n;
 PIN 40 = VMREQ_RD_n;
-PIN 41 = HSYNC;
 
 IORQ = !IORQ_n;
-RD = !RD_n;
 VMREQ_RD = !VMREQ_RD_n;
 VMREQ_WR = !VMREQ_WR_n;
 
-BUS_ENABLED = VMREQ_RD # VMREQ_WR;
+VMREQ = VMREQ_RD # VMREQ_WR;
 
 /** outputs **/
 PIN 20 = HBLANK;
@@ -74,11 +71,12 @@ PIN 31 = RA6;
 PIN 32 = RA7;
 PIN 33 = RA8;
 PIN 34 = RA9;
+PIN 41 = HSYNC;
 
 /*
 Bus Multiplexing
 ----------------
-When BUS_ENABLED is active, then direct the Bus Address lines
+When VMREQ is active, then direct the Bus Address lines
 to the RAM's address lines.  Otherwise, direct the hcounter
 signals to the RAM's address lines
 */
@@ -94,19 +92,21 @@ node P7;
 node P8;
 node P9;
 
-FUNCTION MUX_BUS(BA, P) {
-  MUX_BUS = (BUS_ENABLED & BA) # (!BUS_ENABLED & P);
+FUNCTION MUX_BUS(BA, M0, M1) {
+  MUX_BUS = (VMREQ & BA) # (!VMREQ & (!LOW_RES & M0) & (LOW_RES & M1));
 }
-RA0 = MUX_BUS(BA0, P0);
-RA1 = MUX_BUS(BA1, P1);
-RA2 = MUX_BUS(BA2, P2);
-RA3 = MUX_BUS(BA3, P3);
-RA4 = MUX_BUS(BA4, P4);
-RA5 = MUX_BUS(BA5, P5);
-RA6 = MUX_BUS(BA6, P6);
-RA7 = MUX_BUS(BA7, P7);
-RA8 = MUX_BUS(BA8, P8);
-RA9 = MUX_BUS(BA9, P9);
+
+RA0 = MUX_BUS(BA0, P0, P1);
+RA1 = MUX_BUS(BA1, P1, P2);
+RA2 = MUX_BUS(BA2, P2, P3);
+RA3 = MUX_BUS(BA3, P3, P4);
+RA4 = MUX_BUS(BA4, P4, P5);
+RA5 = MUX_BUS(BA5, P5, P6);
+RA6 = MUX_BUS(BA6, P6, P7);
+RA7 = MUX_BUS(BA7, P7, P8);
+RA8 = MUX_BUS(BA8, P8, P9);
+RA9 = (VMREQ & BA9) # (!VMREQ & !LOW_RES & P9);
+RA9.OE = !LOW_RES # VMREQ;
 
 /*
 Horizontal counter
@@ -140,4 +140,4 @@ FIELD ADDRESS = [BA0..BA7];
 
 $DEFINE VGA_IO_PORT  'h'45
 
-VIOREQ = ADDRESS:[VGA_IO_PORT] & IORQ & RD;
+VIOREQ = ADDRESS:[VGA_IO_PORT] & IORQ;

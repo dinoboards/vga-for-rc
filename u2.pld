@@ -22,7 +22,7 @@ Device   F1502PLCC44 ;
 | ATF1508AS/ASL/ASV/ASVL   | PQFP100 | F1508ISPQFP100  | F1508QFP100   |
 */
 
-property   atmel {cascade_logic  on  };
+property   atmel {cascade_logic  on   };
 property   atmel {fast_inlatch   on   };
 property   atmel {foldback_logic on   };
 property   atmel {logic_doubling on   };
@@ -38,10 +38,8 @@ property   atmel {jtag           off  };
 /** inputs **/
 PIN 43 = HSYNC;
 
+PIN 1 = LOW_RES;
 PIN 4 = CS0_n;
-PIN 6 = RD_n;
-PIN 5 = WR_n;
-
 PIN 7 = BA10;
 PIN 8 = BA11;
 PIN 9 = BA12;
@@ -58,8 +56,6 @@ PIN 25 = BA22;
 PIN 26 = BA23;
 
 CS0 = !CS0_n;
-WR = !WR_n;
-RD = !RD_n;
 
 /** outputs **/
 PIN 27 = RA10;
@@ -74,19 +70,13 @@ PIN 37 = RA18;
 
 PIN 38 = VBLANK;
 PIN 39 = VSYNC;
-PIN 40 = VMREQ_WR_n;
-PIN 41 = VMREQ_RD_n;
+PIN 40 = VMREQ_n;
 
-//F8 0000 TO FF FFFF
+/*F8 0000 TO FF FFFF*/
 VRAM_RANGE = BA23 & BA22 & BA21 & BA20 & BA19;
 
-VMREQ_RD_n = !(CS0 & RD & VRAM_RANGE);
-VMREQ_WR_n = !(CS0 & WR & VRAM_RANGE);
-
-VMREQ_RD = !VMREQ_RD_n;
-VMREQ_WR = !VMREQ_WR_n;
-
-BUS_ENABLED = VMREQ_RD # VMREQ_WR;
+VMREQ_n = !(CS0 & VRAM_RANGE);
+VMREQ = !VMREQ_n;
 
 PINnode 604 =  P0;
 PINnode 601 =  P1;
@@ -99,18 +89,20 @@ PINnode 605 =  P7;
 PINnode 608 =  P8;
 PINnode 614 =  P9;
 
-FUNCTION MUX_BUS(BA, P) {
-  MUX_BUS = (BUS_ENABLED & BA) # (!BUS_ENABLED & P);
+FUNCTION MUX_BUS(BA, M0, M1) {
+  MUX_BUS = (VMREQ & BA) # (!VMREQ & (!LOW_RES & M0) & (LOW_RES & M1));
 }
-RA10 = MUX_BUS(BA10, P0);
-RA11 = MUX_BUS(BA11, P1);
-RA12 = MUX_BUS(BA12, P2);
-RA13 = MUX_BUS(BA13, P3);
-RA14 = MUX_BUS(BA14, P4);
-RA15 = MUX_BUS(BA15, P5);
-RA16 = MUX_BUS(BA16, P6);
-RA17 = MUX_BUS(BA17, P7);
-RA18 = MUX_BUS(BA18, P8);
+RA9.OE = LOW_RES & !VMREQ;
+RA9 = LOW_RES & P1;
+RA10 = MUX_BUS(BA10, P0, P2);
+RA11 = MUX_BUS(BA11, P1, P3);
+RA12 = MUX_BUS(BA12, P2, P4);
+RA13 = MUX_BUS(BA13, P3, P5);
+RA14 = MUX_BUS(BA14, P4, P6);
+RA15 = MUX_BUS(BA15, P5, P7);
+RA16 = MUX_BUS(BA16, P6, P8);
+RA17 = MUX_BUS(BA17, P7, P9);
+RA18 = (VMREQ & BA18) # (!VMREQ & (!LOW_RES & P8));
 
 FIELD VCOUNTER = [P0..P9];
 VCOUNTER.CK = HSYNC;
