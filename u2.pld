@@ -116,9 +116,9 @@ SEQUENCE VCOUNTER {
 
 /* VBLANK is low during the blanking interval (480 to 524) */
 VBLANK.D = !VCOUNTER:['d'480..'d'524];
-VBLANK.CK = VBLANK;
+VBLANK.CK = HSYNC;
 
 /* VSYNC is low during the sync pulse interval (490 to 491) */
 VSYNC.D = !VCOUNTER:['d'490..'d'491];
-VSYNC.CK = VSYNC;
+VSYNC.CK = HSYNC;
 

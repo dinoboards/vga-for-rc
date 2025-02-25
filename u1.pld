@@ -49,14 +49,10 @@ PIN 16 = BA8;
 PIN 18 = BA9;
 PIN 36 = LOW_RES;
 PIN 38 = IORQ_n;
-PIN 39 = VMREQ_WR_n;
-PIN 40 = VMREQ_RD_n;
+PIN 39 = VMREQ_n;
 
 IORQ = !IORQ_n;
-VMREQ_RD = !VMREQ_RD_n;
-VMREQ_WR = !VMREQ_WR_n;
-
-VMREQ = VMREQ_RD # VMREQ_WR;
+VMREQ = !VMREQ_n;
 
 /** outputs **/
 PIN 20 = HBLANK;
@@ -115,7 +111,7 @@ Generate a horizontal counter and the associated
 blanking and sync signals
 */
 
-FIELD HCOUNTER = [P0..P9];
+FIELD HCOUNTER = [P9..P0];
 HCOUNTER.CK = CLOCK;
 
 SEQUENCE HCOUNTER {
