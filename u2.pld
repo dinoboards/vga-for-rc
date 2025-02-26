@@ -22,7 +22,7 @@ Device   F1502PLCC44 ;
 | ATF1508AS/ASL/ASV/ASVL   | PQFP100 | F1508ISPQFP100  | F1508QFP100   |
 */
 
-property   atmel {cascade_logic  on   };
+property   atmel {cascade_logic  off  };
 property   atmel {fast_inlatch   on   };
 property   atmel {foldback_logic on   };
 property   atmel {logic_doubling on   };
@@ -39,6 +39,7 @@ property   atmel {jtag           off  };
 PIN 43 = HSYNC;
 
 PIN 1 = LOW_RES;
+PIN 2 = LINES_REDUCED;
 PIN 4 = CS0_n;
 PIN 7 = BA10;
 PIN 8 = BA11;
@@ -114,8 +115,11 @@ SEQUENCE VCOUNTER {
   PRESENT 525 next 0;
 }
 
-/* VBLANK is low during the blanking interval (480 to 524) */
-VBLANK.D = !VCOUNTER:['d'480..'d'524];
+/* VBLANK is low during the blanking interval (480 to 524) for normal operation */
+/* when LINES_REDUCED is active, the top 40 and bottom 40 are also forced to be blank */
+
+VBLANK.D = (LINES_REDUCED & (!VCOUNTER:['d'440..'d'524] # !VCOUNTER:['d'0..'d'40]))
+          # (!LINES_REDUCED & !VCOUNTER:['d'480..'d'524]);
 VBLANK.CK = HSYNC;
 
 /* VSYNC is low during the sync pulse interval (490 to 491) */
