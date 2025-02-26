@@ -36,7 +36,7 @@ property   atmel {jtag           off  };
 
 /** INPUTS **/
 PIN 43 = CLOCK;
-PIN 1 = VSYNC;
+PIN 1 = VINT_n;
 PIN 2 = VBLANK;
 PIN 4 = HBLANK;
 PIN 36 = VMREQ_n;
@@ -96,14 +96,14 @@ LINES_REDUCED.CK = VIOREQ_WR;
 
 /* VSYNC INTERRUPT SIGNALLING */
 
-/* when VSYNC goes low, INT needs to go low and have its output enabled */
+/* when VINT_n goes low, INT needs to go low and have its output enabled */
 /* when VIOREQ goes low, INT's value needs to be sent to CPU */
 /* when VIOREQ goes high, INT needs to be de-activated */
 
 NODE VSYNC_P;
-VSYNC_P.D = VSYNC;
+VSYNC_P.D = VINT_n;
 VSYNC_P.CK = CLOCK;
-VSYNC_NEG_EDGE = VSYNC_P & !VSYNC;
+VSYNC_NEG_EDGE = VSYNC_P & !VINT_n;
 
 NODE S0;
 NODE S1;
@@ -113,10 +113,10 @@ NODE S2;
 S0.D = (S0 # VSYNC_NEG_EDGE) & !S1 & !S2;
 S0.CK = CLOCK;
 /* STATE 1: TRANSITION TO S1 WHEN CPU IS NOT DOING I/O READ */
-S1.D = S0 & !VIOREQ_RD;
+S1.D = (S1 & !S2) # (S0 & !VIOREQ_RD);
 S1.CK = CLOCK;
 /* STATE 2: TRANSITION TO S2 WHEN CPU IS DOING I/O READ */
-S2.D = S1 & VIOREQ_RD;
+S2.D = (S2 # S1) & VIOREQ_RD;
 S2.CK = CLOCK;
 /* STATE 3: CPU HAS COMPLETED READ, INT IS CLEARED, S0..2 ARE ALL NOW FALSE */
 
