@@ -22,7 +22,7 @@ Device   F1502PLCC44 ;
 | ATF1508AS/ASL/ASV/ASVL   | PQFP100 | F1508ISPQFP100  | F1508QFP100   |
 */
 
-property   atmel {cascade_logic  on  };
+property   atmel {cascade_logic  off  };
 property   atmel {fast_inlatch   on   };
 property   atmel {foldback_logic on   };
 property   atmel {logic_doubling on   };
@@ -121,10 +121,10 @@ SEQUENCE HCOUNTER {
   PRESENT 800 next 1;
 }
 
-HBLANK.D = !HCOUNTER:['d'640..'d'800];
+HBLANK.D = !(HCOUNTER:['d'640..'d'800]);
 HBLANK.CK = CLOCK;
 
-HSYNC.D = !HCOUNTER:['d'656..'d'751];
+HSYNC.D = !(HCOUNTER:['d'656..'d'751]);
 HSYNC.CK = CLOCK;
 
 
