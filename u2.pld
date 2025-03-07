@@ -119,12 +119,12 @@ SEQUENCE VCOUNTER {
 /* VBLANK is low during the blanking interval (480 to 524) for normal operation */
 /* when LINES_REDUCED is active, the top 40 and bottom 40 are also forced to be blank */
 
-VBLANK.D = (LINES_REDUCED & (!VCOUNTER:['d'440..'d'524] # !VCOUNTER:['d'0..'d'40]))
-          # (!LINES_REDUCED & !VCOUNTER:['d'480..'d'524]);
+VBLANK.D = (LINES_REDUCED & (!(VCOUNTER:['d'440..'d'524]) # !(VCOUNTER:['d'0..'d'40])))
+          # (!LINES_REDUCED & !(VCOUNTER:['d'480..'d'524]));
 VBLANK.CK = HSYNC;
 
 /* VSYNC is low during the sync pulse interval (490 to 491) */
-VSYNC.D = !VCOUNTER:['d'490..'d'491];
+VSYNC.D = !(VCOUNTER:['d'490..'d'491]);
 VSYNC.CK = HSYNC;
 
 VINT_n.D = !((LINES_REDUCED & VCOUNTER:['d'440])
