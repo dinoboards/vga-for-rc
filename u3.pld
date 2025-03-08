@@ -80,7 +80,25 @@ PIN 39 = VMREQ_WR_n;
 PIN 40 = LOW_RES;
 PIN 41 = LINES_REDUCED;
 
-VMREQ_WR_n = !VMREQ_WR;
+/* Pluse a WR signal to the SRAM for a clock cycle */
+/* handle cross clock domain from CPU to VGA's clock */
+/* Measures approx 70ns write cycle time */
+
+NODE VMREQ_WR_SYNC1;
+NODE VMREQ_WR_SYNC2;
+NODE VMREQ_WR_SYNC3;
+
+VMREQ_WR_SYNC1.D = VMREQ_WR;
+VMREQ_WR_SYNC1.CK = CLOCK;
+VMREQ_WR_SYNC2.D = VMREQ_WR_SYNC1;
+VMREQ_WR_SYNC2.CK = CLOCK;
+VMREQ_WR_SYNC3.D = VMREQ_WR_SYNC2;
+VMREQ_WR_SYNC3.CK = CLOCK;
+
+VMREQ_WR_n.D = !(VMREQ_WR_SYNC1 & !VMREQ_WR_SYNC2);
+VMREQ_WR_n.CK = CLOCK;
+
+
 VMREQ_RD = !VMREQ_n & RD;
 VMREQ_WR = !VMREQ_n & WR;
 VMREQ = VMREQ_RD # VMREQ_WR;
