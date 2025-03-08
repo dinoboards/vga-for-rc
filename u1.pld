@@ -114,12 +114,21 @@ blanking and sync signals
 FIELD HCOUNTER = [P9..P0];
 HCOUNTER.CK = CLOCK;
 
-SEQUENCE HCOUNTER {
-  $REPEAT i = [0..799]
-  PRESENT {i} NEXT {(i+1)};
-  $REPEND
-  PRESENT 800 next 1;
-}
+/* Define reset condition: when counter reaches 799 (0x31F) */
+$DEFINE COUNT_MAX (HCOUNTER:['d'800])
+
+/* Modified 10-bit counter with reset at 800 */
+P0.D = (!COUNT_MAX & !P0);
+P1.D = (!COUNT_MAX & ((P0 & !P1) # (!P0 & P1)));
+P2.D = (!COUNT_MAX & ((P0 & P1 & !P2) # (!(P0 & P1) & P2)));
+P3.D = (!COUNT_MAX & ((P0 & P1 & P2 & !P3) # (!(P0 & P1 & P2) & P3)));
+P4.D = (!COUNT_MAX & ((P0 & P1 & P2 & P3 & !P4) # (!(P0 & P1 & P2 & P3) & P4)));
+P5.D = (!COUNT_MAX & ((P0 & P1 & P2 & P3 & P4 & !P5) # (!(P0 & P1 & P2 & P3 & P4) & P5)));
+P6.D = (!COUNT_MAX & ((P0 & P1 & P2 & P3 & P4 & P5 & !P6) # (!(P0 & P1 & P2 & P3 & P4 & P5) & P6)));
+P7.D = (!COUNT_MAX & ((P0 & P1 & P2 & P3 & P4 & P5 & P6 & !P7) # (!(P0 & P1 & P2 & P3 & P4 & P5 & P6) & P7)));
+P8.D = (!COUNT_MAX & ((P0 & P1 & P2 & P3 & P4 & P5 & P6 & P7 & !P8) # (!(P0 & P1 & P2 & P3 & P4 & P5 & P6 & P7) & P8)));
+P9.D = (!COUNT_MAX & ((P0 & P1 & P2 & P3 & P4 & P5 & P6 & P7 & P8 & !P9) # (!(P0 & P1 & P2 & P3 & P4 & P5 & P6 & P7 & P8) & P9)));
+
 
 HBLANK.D = !(HCOUNTER:['d'640..'d'800]);
 HBLANK.CK = CLOCK;
