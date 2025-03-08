@@ -1,4 +1,4 @@
-CUPLD := docker run -v ${PWD}:/work -e CHOWN=$(id -u ${USER}):$(id -g ${USER}) -it cpld-toolchain cupld
+CUPLD := docker run -v ${PWD}:/work -e CHOWN=$(id -u ${USER}):$(id -g ${USER}) -it dinoboards/cpld-toolchain:1.0.0 cupld
 WSL_WIN_BIN_PATH := Y:\\home\\dean\\dinoboards\\vga-for-rc\\bin\\
 
 # Assuming we are running on WSL, then we can use the
