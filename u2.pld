@@ -109,12 +109,20 @@ RA18 = (VMREQ & BA18) # (!VMREQ & (!LOW_RES & P8));
 FIELD VCOUNTER = [P0..P9];
 VCOUNTER.CK = HSYNC;
 
-SEQUENCE VCOUNTER {
-  $REPEAT i = [0..524]
-  PRESENT {i} NEXT {(i+1)};
-  $REPEND
-  PRESENT 525 next 0;
-}
+/* Define reset condition: when counter reaches 799 (0x31F) */
+$DEFINE COUNT_MAX (VCOUNTER:['d'525])
+
+/* Modified 10-bit counter with reset at 800 */
+P0.D = (!COUNT_MAX & !P0);
+P1.D = (!COUNT_MAX & ((P0 & !P1) # (!P0 & P1)));
+P2.D = (!COUNT_MAX & ((P0 & P1 & !P2) # (!(P0 & P1) & P2)));
+P3.D = (!COUNT_MAX & ((P0 & P1 & P2 & !P3) # (!(P0 & P1 & P2) & P3)));
+P4.D = (!COUNT_MAX & ((P0 & P1 & P2 & P3 & !P4) # (!(P0 & P1 & P2 & P3) & P4)));
+P5.D = (!COUNT_MAX & ((P0 & P1 & P2 & P3 & P4 & !P5) # (!(P0 & P1 & P2 & P3 & P4) & P5)));
+P6.D = (!COUNT_MAX & ((P0 & P1 & P2 & P3 & P4 & P5 & !P6) # (!(P0 & P1 & P2 & P3 & P4 & P5) & P6)));
+P7.D = (!COUNT_MAX & ((P0 & P1 & P2 & P3 & P4 & P5 & P6 & !P7) # (!(P0 & P1 & P2 & P3 & P4 & P5 & P6) & P7)));
+P8.D = (!COUNT_MAX & ((P0 & P1 & P2 & P3 & P4 & P5 & P6 & P7 & !P8) # (!(P0 & P1 & P2 & P3 & P4 & P5 & P6 & P7) & P8)));
+P9.D = (!COUNT_MAX & ((P0 & P1 & P2 & P3 & P4 & P5 & P6 & P7 & P8 & !P9) # (!(P0 & P1 & P2 & P3 & P4 & P5 & P6 & P7 & P8) & P9)));
 
 /* VBLANK is low during the blanking interval (480 to 524) for normal operation */
 /* when LINES_REDUCED is active, the top 40 and bottom 40 are also forced to be blank */
