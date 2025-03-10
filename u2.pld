@@ -127,8 +127,13 @@ P9.D = (!COUNT_MAX & ((P0 & P1 & P2 & P3 & P4 & P5 & P6 & P7 & P8 & !P9) # (!(P0
 /* VBLANK is low during the blanking interval (480 to 524) for normal operation */
 /* when LINES_REDUCED is active, the top 40 and bottom 40 are also forced to be blank */
 
-VBLANK.D = (LINES_REDUCED & (!(VCOUNTER:['d'440..'d'524]) # !(VCOUNTER:['d'0..'d'40])))
-          # (!LINES_REDUCED & !(VCOUNTER:['d'480..'d'524]));
+VPORCH = VCOUNTER:['d'480..'d'524];
+VPORCH_EXTRA = VCOUNTER:['d'440..'d'525] # VCOUNTER:['d'0..'d'40];
+
+/* VBLANK IS ACTIVE LOW */
+
+VBLANK.D = (LINES_REDUCED & !VPORCH_EXTRA)
+          # (!LINES_REDUCED & !VPORCH);
 VBLANK.CK = HSYNC;
 
 /* VSYNC is low during the sync pulse interval (490 to 491) */
