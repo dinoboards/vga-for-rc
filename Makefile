@@ -22,14 +22,14 @@ clean:
 .PHONY: flash-u1
 flash-u1: bin/u1.jed
 	$(ATFU) erase --force
-	$(ATFU) program $(WSL_WIN_BIN_PATH)u1.jed
+	$(ATFU) program --noverify $(WSL_WIN_BIN_PATH)u1.jed
 
 .PHONY: flash-u2
 flash-u2: bin/u2.jed
 	$(ATFU) erase --force
-	$(ATFU) program $(WSL_WIN_BIN_PATH)u2.jed
+	$(ATFU) program --noverify $(WSL_WIN_BIN_PATH)u2.jed
 
 .PHONY: flash-u3
 flash-u3: bin/u3.jed
 	$(ATFU) erase -d ATF1504 --force
-	$(ATFU) program -d ATF1504 $(WSL_WIN_BIN_PATH)u3.jed
+	$(ATFU) program -d ATF1504 --noverify $(WSL_WIN_BIN_PATH)u3.jed
