@@ -109,10 +109,9 @@ RA18 = (VMREQ & BA18) # (!VMREQ & (!LOW_RES & P8));
 FIELD VCOUNTER = [P0..P9];
 VCOUNTER.CK = HSYNC;
 
-/* Define reset condition: when counter reaches 799 (0x31F) */
 $DEFINE COUNT_MAX (VCOUNTER:['d'525])
 
-/* Modified 10-bit counter with reset at 800 */
+/* Modified 10-bit counter with reset at 525 */
 P0.D = (!COUNT_MAX & !P0);
 P1.D = (!COUNT_MAX & ((P0 & !P1) # (!P0 & P1)));
 P2.D = (!COUNT_MAX & ((P0 & P1 & !P2) # (!(P0 & P1) & P2)));
@@ -127,8 +126,8 @@ P9.D = (!COUNT_MAX & ((P0 & P1 & P2 & P3 & P4 & P5 & P6 & P7 & P8 & !P9) # (!(P0
 /* VBLANK is low during the blanking interval (480 to 524) for normal operation */
 /* when LINES_REDUCED is active, the top 40 and bottom 40 are also forced to be blank */
 
-VPORCH = VCOUNTER:['d'480..'d'524];
-VPORCH_EXTRA = VCOUNTER:['d'440..'d'525] # VCOUNTER:['d'0..'d'40];
+VPORCH = VCOUNTER:['d'479..'d'524];
+VPORCH_EXTRA = VCOUNTER:['d'439..'d'525] # VCOUNTER:['d'0..'d'39];
 
 /* VBLANK IS ACTIVE LOW */
 

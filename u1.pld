@@ -114,10 +114,10 @@ blanking and sync signals
 FIELD HCOUNTER = [P9..P0];
 HCOUNTER.CK = CLOCK;
 
-/* Define reset condition: when counter reaches 799 (0x31F) */
-$DEFINE COUNT_MAX (HCOUNTER:['d'800])
+/* Define reset condition: when counter reaches 799 */
+$DEFINE COUNT_MAX (HCOUNTER:['d'799])
 
-/* Modified 10-bit counter with reset at 800 */
+/* Modified 10-bit counter with reset at 799 */
 P0.D = (!COUNT_MAX & !P0);
 P1.D = (!COUNT_MAX & ((P0 & !P1) # (!P0 & P1)));
 P2.D = (!COUNT_MAX & ((P0 & P1 & !P2) # (!(P0 & P1) & P2)));
@@ -130,7 +130,7 @@ P8.D = (!COUNT_MAX & ((P0 & P1 & P2 & P3 & P4 & P5 & P6 & P7 & !P8) # (!(P0 & P1
 P9.D = (!COUNT_MAX & ((P0 & P1 & P2 & P3 & P4 & P5 & P6 & P7 & P8 & !P9) # (!(P0 & P1 & P2 & P3 & P4 & P5 & P6 & P7 & P8) & P9)));
 
 
-HBLANK.D = !(HCOUNTER:['d'640..'d'800]);
+HBLANK.D = !(HCOUNTER:['d'639..'d'798]);
 HBLANK.CK = CLOCK;
 
 HSYNC.D = !(HCOUNTER:['d'656..'d'751]);
