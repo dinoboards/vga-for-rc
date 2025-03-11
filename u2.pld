@@ -80,16 +80,16 @@ VRAM_RANGE = BA23 & BA22 & BA21 & BA20 & BA19;
 VMREQ_n = !(CS0 & VRAM_RANGE);
 VMREQ = !VMREQ_n;
 
-PINnode 604 =  P0;
-PINnode 601 =  P1;
-PINnode 610 =  P2;
-PINnode 602 =  P3;
-PINnode 612 =  P4;
-PINnode 603 =  P5;
-PINnode 606 =  P6;
-PINnode 605 =  P7;
-PINnode 608 =  P8;
-PINnode 614 =  P9;
+PINnode = P0;
+PINnode = P1;
+PINnode = P2;
+PINnode = P3;
+PINnode = P4;
+PINnode = P5;
+PINnode = P6;
+PINnode = P7;
+PINnode = P8;
+PINnode = P9;
 
 FUNCTION MUX_BUS(BA, M0, M1) {
   MUX_BUS = (VMREQ & BA) # (!VMREQ & ((!LOW_RES & M0) # (LOW_RES & M1)));
@@ -127,7 +127,7 @@ P9.D = (!COUNT_MAX & ((P0 & P1 & P2 & P3 & P4 & P5 & P6 & P7 & P8 & !P9) # (!(P0
 /* when LINES_REDUCED is active, the top 40 and bottom 40 are also forced to be blank */
 
 VPORCH = VCOUNTER:['d'479..'d'524];
-VPORCH_EXTRA = VCOUNTER:['d'439..'d'525] # VCOUNTER:['d'0..'d'39];
+VPORCH_EXTRA = VCOUNTER:['d'439..'d'525] # VCOUNTER:['d'0..'d'38];
 
 /* VBLANK IS ACTIVE LOW */
 
