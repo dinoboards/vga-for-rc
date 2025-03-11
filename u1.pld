@@ -89,7 +89,7 @@ node P8;
 node P9;
 
 FUNCTION MUX_BUS(BA, M0, M1) {
-  MUX_BUS = ((!HBLANK # VMREQ) & BA) # (!VMREQ & ((!LOW_RES & M0) # (LOW_RES & M1)));
+  MUX_BUS = (VMREQ & BA) # (!VMREQ & ((!LOW_RES & M0) # (LOW_RES & M1)));
 }
 
 RA0 = MUX_BUS(BA0, P0, P1);

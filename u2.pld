@@ -92,7 +92,7 @@ PINnode 608 =  P8;
 PINnode 614 =  P9;
 
 FUNCTION MUX_BUS(BA, M0, M1) {
-  MUX_BUS = ((!VBLANK # VMREQ) & BA) # (!VMREQ & ((!LOW_RES & M0) # (LOW_RES & M1)));
+  MUX_BUS = (VMREQ & BA) # (!VMREQ & ((!LOW_RES & M0) # (LOW_RES & M1)));
 }
 RA9.OE = LOW_RES & !VMREQ;
 RA9 = LOW_RES & P1;
