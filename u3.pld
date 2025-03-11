@@ -36,7 +36,6 @@ property   atmel {jtag           off  };
 
 /** INPUTS **/
 PIN 43 = CLOCK;
-PIN 1 = VINT_n;
 PIN 2 = VBLANK;
 PIN 4 = HBLANK;
 PIN 36 = VMREQ_n;
@@ -116,56 +115,28 @@ LOW_RES.CK = VIOREQ_WR;
 LINES_REDUCED.D = BD6;
 LINES_REDUCED.CK = VIOREQ_WR;
 
-/* VSYNC INTERRUPT SIGNALLING */
-
-/* when VINT_n goes low, INT needs to go low and have its output enabled */
-/* when VIOREQ goes low, INT's value needs to be sent to CPU */
-/* when VIOREQ goes high, INT needs to be de-activated */
-
-NODE VSYNC_P;
-VSYNC_P.D = VINT_n;
-VSYNC_P.CK = CLOCK;
-VSYNC_NEG_EDGE = VSYNC_P & !VINT_n;
-
-NODE S0;
-NODE S1;
-NODE S2;
-
-/* STATE 0: VSYNC TRIGGERED */
-S0.D = (S0 # VSYNC_NEG_EDGE) & !S1 & !S2;
-S0.CK = CLOCK;
-/* STATE 1: TRANSITION TO S1 WHEN CPU IS NOT DOING I/O READ */
-S1.D = (S1 & !S2) # (S0 & !VIOREQ_RD);
-S1.CK = CLOCK;
-/* STATE 2: TRANSITION TO S2 WHEN CPU IS DOING I/O READ */
-S2.D = (S2 # S1) & VIOREQ_RD;
-S2.CK = CLOCK;
-/* STATE 3: CPU HAS COMPLETED READ, INT IS CLEARED, S0..2 ARE ALL NOW FALSE */
-
-INT_n.D = !(S1 # S2);
-INT_n.CK = CLOCK;
-INT_n.OE = INT_n & !INT_n; /* disable interrupt for the moment */
-
+INT_n = 'b'0;
+INT_n.OE = 'b'0; /* deprecated */
 
 /* DATA BUS DIRECTIONING */
 
 BD_OUTPUT_EN = VIOREQ_RD # VMREQ_RD;
-BD0 = (VIOREQ_RD & INT_n) # (VMREQ_RD & RD0);
+BD0 = (VIOREQ_RD & !HBLANK) # (VMREQ_RD & RD0);  /* is 1 when in blanking period */
 BD0.OE = BD_OUTPUT_EN;
 
-BD1 = (VIOREQ_RD & HBLANK) # (VMREQ_RD & RD1);
+BD1 = (VIOREQ_RD & !VBLANK) # (VMREQ_RD & RD1); /* is 1 when in blanking period */
 BD1.OE = BD_OUTPUT_EN;
 
-BD2 = (VIOREQ_RD & VBLANK) # (VMREQ_RD & RD2);
+BD2 = (VIOREQ_RD & 'b'0) # (VMREQ_RD & RD2);
 BD2.OE = BD_OUTPUT_EN;
 
-BD3 = (VIOREQ_RD & !HBLANK) # (VMREQ_RD & RD3);
+BD3 = (VIOREQ_RD & 'b'0) # (VMREQ_RD & RD3);
 BD3.OE = BD_OUTPUT_EN;
 
-BD4 =  (VIOREQ_RD & !VBLANK) # (VMREQ_RD & RD4);
+BD4 =  (VIOREQ_RD & 'b'0) # (VMREQ_RD & RD4);
 BD4.OE = BD_OUTPUT_EN;
 
-BD5 = (VIOREQ_RD) # (VMREQ_RD & RD5);
+BD5 = (VIOREQ_RD & 'b'0) # (VMREQ_RD & RD5);
 BD5.OE = BD_OUTPUT_EN;
 
 BD6 = (VIOREQ_RD & LINES_REDUCED) # (VMREQ_RD & RD6);

@@ -72,7 +72,6 @@ PIN 37 = RA18;
 PIN 38 = VBLANK;
 PIN 39 = VSYNC;
 PIN 40 = VMREQ_n;
-PIN 41 = VINT_n;
 
 /*F8 0000 TO FF FFFF*/
 VRAM_RANGE = BA23 & BA22 & BA21 & BA20 & BA19;
@@ -137,7 +136,3 @@ VBLANK.CK = HSYNC;
 /* VSYNC is low during the sync pulse interval (490 to 491) */
 VSYNC.D = !(VCOUNTER:['d'490..'d'491]);
 VSYNC.CK = HSYNC;
-
-VINT_n.D = !((LINES_REDUCED & VCOUNTER:['d'440])
-         # (!LINES_REDUCED & VCOUNTER:['d'480]));
-VINT_n.CK = HSYNC;
