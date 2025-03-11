@@ -101,8 +101,9 @@ RA5 = MUX_BUS(BA5, P5, P6);
 RA6 = MUX_BUS(BA6, P6, P7);
 RA7 = MUX_BUS(BA7, P7, P8);
 RA8 = MUX_BUS(BA8, P8, P9);
-RA9 = (VMREQ & BA9) # (!VMREQ & !LOW_RES & P9);
-RA9.OE = !LOW_RES # VMREQ;
+RA9 = MUX_BUS(BA9, P9, 'b'0);
+/* RA9 = (VMREQ & BA9) # (!VMR?EQ & !LOW_RES & P9); */
+RA9.OE = 'b'1;
 
 /*
 Horizontal counter
